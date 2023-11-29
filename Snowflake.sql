@@ -84,3 +84,11 @@ FROM
 
 -- Handle Missing Data with Imputation 
  select company, IFF(COMPANY IS NULL OR COMPANY='','NA',COMPANY) as Clean_Company from CUSTOMERS
+
+-- Find Duplicated Customers based on email
+ select email, count(ID) from CUSTOMERS group by email having count(id)>1;
+
+-- Eliminate Duplicated Customers and keep the record with the latest Transaction Date
+ select ID, NAME, EMAIL, LASTTRANSACTION,
+    rank() over (partition by EMAIL order by to_date(LASTTRANSACTION, 'AUTO') desc) as RANK
+from customers qualify RANK=1;

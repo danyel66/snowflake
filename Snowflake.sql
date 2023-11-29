@@ -56,3 +56,25 @@ select name, split_part(Trim(name, ' 0'), ',', 1) as LAST_NAME, split_part(Trim(
 
 -- Extract Date from a Text Column
 select to_date(DOB, 'MMMM DD, YYYY'), to_date(LASTTRANSACTION, 'AUTO') from CUSTOMERS;
+
+-- Use DATEDIFF() to count the Number of days between LASTTRANSACTION Column and CURRENT_DATE() in "DAYS"
+select to_date(lasttransaction, 'AUTO'), datediff(days, TO_DATE(lasttransaction, 'AUTO'), current_date()) as DAYS_SINCE_LAST_TRANSACTIONS
+from customers;
+
+-- Using the DaysSinceLastTransaction column Query the DataSet to find the list of Inactive Customers (DaysSinceLastTransaction>90)
+SELECT 
+    ID, 
+	SPLIT_PART(TRIM(NAME,' 0'),', ', 1) as FIRST_NAME, 
+    SPLIT_PART(TRIM(NAME,' 0'),', ', 2) as LAST_NAME, 
+    EMAIL,
+    TO_DATE(DOB,'MMMM DD, YYYY') DOB,
+	TO_DATE(LastTransaction,'AUTO') AS LastTransaction,
+	DATEDIFF(days, TO_DATE(LastTransaction,'AUTO'), current_date()) as DaysSinceLastTrans,
+    LTRIM(PHONE,'0+') as Standarized_Phone,
+    ADDRESS, 
+    REGION , 
+    COUNTRY,
+    COMPANY
+FROM
+    CUSTOMERS
+ WHERE DaysSinceLastTrans > 90;

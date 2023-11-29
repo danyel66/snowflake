@@ -92,3 +92,32 @@ FROM
  select ID, NAME, EMAIL, LASTTRANSACTION,
     rank() over (partition by EMAIL order by to_date(LASTTRANSACTION, 'AUTO') desc) as RANK
 from customers qualify RANK=1;
+
+-- Create a View to Store the query list of Inactive Customers
+CREATE OR REPLACE VIEW CUSTOMERS_VW AS (
+WITH LISTIDs As (
+SELECT 
+        ID, Name, Email, LastTransaction,
+        rank() over (partition by email order by TO_DATE(LastTransaction,'AUTO') desc) RANK 
+        from CUSTOMERS QUALIFY RANK =1
+    )
+    SELECT 
+    ID, 
+	SPLIT_PART(TRIM(NAME,' 0'),',',1) AS FIRST_NAME, 
+    SPLIT_PART(TRIM(NAME,' 0'),', ',2) AS LAST_NAME, 
+    EMAIL,
+    TO_DATE(DoB, 'MMMM DD, YYYY' ) as DoB,
+    DATEDIFF(year, TO_DATE(DoB, 'MMMM DD, YYYY' ), current_date()) as AGE,
+	TO_DATE(LastTransaction,'AUTO') AS LastTransaction,
+    DATEDIFF(days, LastTransaction, current_date()) as DaysSinceLastTrans,
+    iff(((COMPANY IS NULL) OR (COMPANY = '') ),'N/A', COMPANY) AS COMPANY,
+	LTRIM(PHONE, '+0' ) AS PHONE,
+	ADDRESS, postalZip, Region , COUNTRY
+FROM
+    CUSTOMERS
+WHERE 
+    NOT(email is null OR email='') AND ID in (SELECT ID FROM LISTIDs));
+
+
+-- Query CUSTOMERS_VW (newly created View) to find the list of inactive Customers order them by ascending order then export results in CSV
+SELECT * FROM CUSTOMERS_VW WHERE DAYSSINCELASTTRANS > 90 order by ID asc;

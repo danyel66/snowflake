@@ -47,3 +47,12 @@ VALUES
 
 -- Check loaded Data
 Select * from CUSTOMERS;
+
+-- Use TRIM() to Remove leading and trailing characters from column "NAME"
+select name, TRIM(NAME, ' 0') as N, concat('>', N,'<') from CUSTOMERS;
+
+-- Extract First and Last Names from "Name" Column
+select name, split_part(Trim(name, ' 0'), ',', 1) as LAST_NAME, split_part(Trim(name,' 0'), ',', 2) as FIRST_NAME from customers;
+
+-- Extract Date from a Text Column
+select to_date(DOB, 'MMMM DD, YYYY'), to_date(LASTTRANSACTION, 'AUTO') from CUSTOMERS;

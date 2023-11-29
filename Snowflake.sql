@@ -78,3 +78,9 @@ SELECT
 FROM
     CUSTOMERS
  WHERE DaysSinceLastTrans > 90;
+
+-- Handle Missing Data with Deletion
+ select * from Customers where not (email is null or email='');
+
+-- Handle Missing Data with Imputation 
+ select company, IFF(COMPANY IS NULL OR COMPANY='','NA',COMPANY) as Clean_Company from CUSTOMERS
